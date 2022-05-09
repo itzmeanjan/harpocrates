@@ -4,7 +4,7 @@
 
 using size_t = std::size_t;
 
-// Harpocartes - An Efficient Encryption Mechanism for Data-at-rest, related
+// Harpocrates - An Efficient Encryption Mechanism for Data-at-rest, related
 // utility functions
 namespace harpocrates_utils {
 
