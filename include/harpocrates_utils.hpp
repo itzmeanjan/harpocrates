@@ -148,6 +148,47 @@ add_rc(uint16_t* const state, const size_t r_idx)
   }
 }
 
+// Column substitution for diffusing value of each row, taken from algorithm 3
+// described in section 2.3 of Harpocrates specification
+// https://eprint.iacr.org/2022/519.pdf
+static inline void
+column_substitution(uint16_t* const __restrict state,
+                    const uint8_t* const __restrict lut)
+{
+  for (size_t i = 0; i < harpocartes_common::N_COLS; i++) {
+    const uint8_t b0 = static_cast<uint8_t>((state[0] >> (15ul - i)) & 0b1u);
+    const uint8_t b1 = static_cast<uint8_t>((state[1] >> (15ul - i)) & 0b1u);
+    const uint8_t b2 = static_cast<uint8_t>((state[2] >> (15ul - i)) & 0b1u);
+    const uint8_t b3 = static_cast<uint8_t>((state[3] >> (15ul - i)) & 0b1u);
+    const uint8_t b4 = static_cast<uint8_t>((state[4] >> (15ul - i)) & 0b1u);
+    const uint8_t b5 = static_cast<uint8_t>((state[5] >> (15ul - i)) & 0b1u);
+    const uint8_t b6 = static_cast<uint8_t>((state[6] >> (15ul - i)) & 0b1u);
+    const uint8_t b7 = static_cast<uint8_t>((state[7] >> (15ul - i)) & 0b1u);
+
+    const uint8_t col0 = (b0 << 7) | (b1 << 6) | (b2 << 5) | (b3 << 4) |
+                         (b4 << 3) | (b5 << 2) | (b6 << 1) | (b7 << 0);
+
+    const uint8_t col1 = lut[col0];
+
+    state[0] = (state[0] & harpocartes_common::COL_MASKS[i]) |
+               (static_cast<uint16_t>((col1 >> 7) & 0b1u) << (15ul - i));
+    state[1] = (state[1] & harpocartes_common::COL_MASKS[i]) |
+               (static_cast<uint16_t>((col1 >> 6) & 0b1u) << (15ul - i));
+    state[2] = (state[2] & harpocartes_common::COL_MASKS[i]) |
+               (static_cast<uint16_t>((col1 >> 5) & 0b1u) << (15ul - i));
+    state[3] = (state[3] & harpocartes_common::COL_MASKS[i]) |
+               (static_cast<uint16_t>((col1 >> 4) & 0b1u) << (15ul - i));
+    state[4] = (state[4] & harpocartes_common::COL_MASKS[i]) |
+               (static_cast<uint16_t>((col1 >> 3) & 0b1u) << (15ul - i));
+    state[5] = (state[5] & harpocartes_common::COL_MASKS[i]) |
+               (static_cast<uint16_t>((col1 >> 2) & 0b1u) << (15ul - i));
+    state[6] = (state[6] & harpocartes_common::COL_MASKS[i]) |
+               (static_cast<uint16_t>((col1 >> 1) & 0b1u) << (15ul - i));
+    state[7] = (state[7] & harpocartes_common::COL_MASKS[i]) |
+               (static_cast<uint16_t>((col1 >> 0) & 0b1u) << (15ul - i));
+  }
+}
+
 // Right to left convoluted substitution, as described in point (4) of
 // section 2.3 of Harpocrates specification https://eprint.iacr.org/2022/519.pdf
 //

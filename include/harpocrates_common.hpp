@@ -10,6 +10,21 @@ namespace harpocartes_common {
 // # -of rows in Harpocrates state matrix ( it's a 8 x 16 row-major bit matrix )
 constexpr size_t N_ROWS = 8ul;
 
+// # -of columns in Harpocrates state matrix ( it's a 8 x 16 row-major bit
+// matrix )
+constexpr size_t N_COLS = 16ul;
+
+// 16 -bit masks for selecting ( read enabling/ disabling ) column(s), when
+// performing column substitution
+constexpr uint16_t COL_MASKS[16] = { 0b0111111111111111, 0b1011111111111111,
+                                     0b1101111111111111, 0b1110111111111111,
+                                     0b1111011111111111, 0b1111101111111111,
+                                     0b1111110111111111, 0b1111111011111111,
+                                     0b1111111101111111, 0b1111111110111111,
+                                     0b1111111111011111, 0b1111111111101111,
+                                     0b1111111111110111, 0b1111111111111011,
+                                     0b1111111111111101, 0b1111111111111110 };
+
 // Harpocrates round-0 constants, to be added to state matrix during execution
 // of round-0, generated following `Round constant addition` point in
 // section 2.3 of Harpocrates specification https://eprint.iacr.org/2022/519.pdf
