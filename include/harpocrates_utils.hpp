@@ -20,9 +20,9 @@ shuffle(uint8_t* const lut)
   std::random_device rd;
   std::mt19937_64 gen(rd());
 
-  constexpr size_t n = 256;
-  for (size_t i = 0; i < n - 1; i++) {
-    std::uniform_int_distribution<uint8_t> dis{ i, n - 1ul };
+  constexpr uint8_t n = 255;
+  for (uint8_t i = 0; i < n; i++) {
+    std::uniform_int_distribution<uint8_t> dis{ i, n };
     const uint8_t j = dis(gen);
 
     lut[i] ^= lut[j];
