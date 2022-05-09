@@ -31,4 +31,30 @@ shuffle(uint8_t* const lut)
   }
 }
 
+// Generation of Look Up Table ( read `lut` ), as defined in section 2.5 of
+// Harpocrates specification https://eprint.iacr.org/2022/519.pdf
+static inline void
+generate_lut(uint8_t* const lut)
+{
+  constexpr size_t n = 256;
+  for (size_t i = 0; i < n; i++) {
+    lut[i] = i;
+  }
+
+  shuffle(lut);
+}
+
+// Generation of inverse Look Up Table ( read `inv_lut` ), using involution
+// function of `lut`, as defined in section 2.1 of Harpocrates specification
+// https://eprint.iacr.org/2022/519.pdf
+static inline void
+generate_inv_lut(const uint8_t* const __restrict lut,
+                 uint8_t* const __restrict inv_lut)
+{
+  constexpr size_t n = 256;
+  for (size_t i = 0; i < n; i++) {
+    inv_lut[lut[i]] = i;
+  }
+}
+
 }
