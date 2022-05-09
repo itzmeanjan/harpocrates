@@ -59,9 +59,12 @@ generate_inv_lut(const uint8_t* const __restrict lut,
 
 // Left to right convoluted substitution, as described in algorithm 2 of
 // Harpocrates specification https://eprint.iacr.org/2022/519.pdf
+//
+// Also see figure 4 of above linked document to better understand workings of
+// this procedure
 static inline void
-left_to_right_convoluated_substitution(uint16_t* const __restrict state,
-                                       const uint8_t* const __restrict lut)
+left_to_right_convoluted_substitution(uint16_t* const __restrict state,
+                                      const uint8_t* const __restrict lut)
 {
   for (size_t i = 0; i < harpocartes_common::N_ROWS; i++) {
     uint16_t tmp = state[i];
@@ -70,7 +73,7 @@ left_to_right_convoluated_substitution(uint16_t* const __restrict state,
     const uint8_t t0 = static_cast<uint8_t>(tmp >> 8);
     const uint8_t t1 = lut[t0];
 
-    tmp = (static_cast<uint16_t>(t1) << 8) | (tmp & 0xffu);
+    tmp = (static_cast<uint16_t>(t1) << 8) | (tmp & 0b11111111u);
 
     // step 2
     const uint8_t t2 = static_cast<uint8_t>(tmp >> 6);
@@ -142,6 +145,55 @@ add_rc(uint16_t* const state, const size_t r_idx)
     for (size_t i = 0; i < 8; i++) {
       state[i] ^= harpocartes_common::RC7[i];
     }
+  }
+}
+
+// Right to left convoluted substitution, as described in point (4) of
+// section 2.3 of Harpocrates specification https://eprint.iacr.org/2022/519.pdf
+//
+// Also see figure 7 of above linked document to better understand workings of
+// this procedure
+static inline void
+right_to_left_convoluted_substitution(uint16_t* const __restrict state,
+                                      const uint8_t* const __restrict lut)
+{
+  for (size_t i = 0; i < harpocartes_common::N_ROWS; i++) {
+    uint16_t tmp = state[i];
+
+    // step 1
+    const uint8_t t0 = static_cast<uint8_t>(tmp);
+    const uint8_t t1 = lut[t0];
+
+    tmp = (tmp & 0b1111111100000000u) | static_cast<uint16_t>(t1);
+
+    // step 2
+    const uint8_t t2 = static_cast<uint8_t>(tmp >> 2);
+    const uint8_t t3 = lut[t2];
+
+    tmp = (tmp & 0b1111110000000000u) | (static_cast<uint16_t>(t3) << 2) |
+          (tmp & 0b11u);
+
+    // step 3
+    const uint8_t t4 = static_cast<uint8_t>(tmp >> 4);
+    const uint8_t t5 = lut[t4];
+
+    tmp = (tmp & 0b1111000000000000u) | (static_cast<uint16_t>(t5) << 4) |
+          (tmp & 0b1111u);
+
+    // step 4
+    const uint8_t t6 = static_cast<uint8_t>(tmp >> 6);
+    const uint8_t t7 = lut[t6];
+
+    tmp = (tmp & 0b1100000000000000u) | (static_cast<uint16_t>(t7) << 6) |
+          (tmp & 0b111111u);
+
+    // step 5
+    const uint8_t t8 = static_cast<uint8_t>(tmp >> 8);
+    const uint8_t t9 = lut[t8];
+
+    tmp = (static_cast<uint16_t>(t9) << 8) | (tmp & 0b11111111u);
+
+    state[i] = tmp;
   }
 }
 
