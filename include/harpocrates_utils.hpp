@@ -4,8 +4,6 @@
 #include <random>
 #include <type_traits>
 
-using size_t = std::size_t;
-
 // Harpocrates - An Efficient Encryption Mechanism for Data-at-rest, related
 // utility functions
 namespace harpocrates_utils {
@@ -56,6 +54,52 @@ generate_inv_lut(const uint8_t* const __restrict lut,
   constexpr size_t n = 256;
   for (size_t i = 0; i < n; i++) {
     inv_lut[lut[i]] = i;
+  }
+}
+
+// Left to right convoluted substitution, as described in algorithm 2 of
+// Harpocrates specification https://eprint.iacr.org/2022/519.pdf
+static inline void
+left_to_right_convoluated_substitution(uint16_t* const __restrict state,
+                                       const uint8_t* const __restrict lut)
+{
+  for (size_t i = 0; i < harpocartes_common::N_ROWS; i++) {
+    uint16_t tmp = state[i];
+
+    // step 1
+    const uint8_t t0 = static_cast<uint8_t>(tmp >> 8);
+    const uint8_t t1 = lut[t0];
+
+    tmp = (static_cast<uint16_t>(t1) << 8) | (tmp & 0xffu);
+
+    // step 2
+    const uint8_t t2 = static_cast<uint8_t>(tmp >> 6);
+    const uint8_t t3 = lut[t2];
+
+    tmp = (tmp & 0b1100000000000000u) | (static_cast<uint16_t>(t3) << 6) |
+          (tmp & 0b111111u);
+
+    // step 3
+    const uint8_t t4 = static_cast<uint8_t>(tmp >> 4);
+    const uint8_t t5 = lut[t4];
+
+    tmp = (tmp & 0b1111000000000000u) | (static_cast<uint16_t>(t5) << 4) |
+          (tmp & 0b1111u);
+
+    // step 4
+    const uint8_t t6 = static_cast<uint8_t>(tmp >> 2);
+    const uint8_t t7 = lut[t6];
+
+    tmp = (tmp & 0b1111110000000000u) | (static_cast<uint16_t>(t7) << 2) |
+          (tmp & 0b11u);
+
+    // step 5
+    const uint8_t t8 = static_cast<uint8_t>(tmp);
+    const uint8_t t9 = lut[t8];
+
+    tmp = (tmp & 0b1111111100000000u) | static_cast<uint16_t>(t9);
+
+    state[i] = tmp;
   }
 }
 

@@ -1,9 +1,14 @@
 #pragma once
 #include <cstdint>
 
+using size_t = std::size_t;
+
 // Harpocrates - An Efficient Encryption Mechanism for Data-at-rest, related
 // common functions & constants
 namespace harpocartes_common {
+
+// # -of rows in Harpocrates state matrix ( it's a 8 x 16 row-major bit matrix )
+constexpr size_t N_ROWS = 8ul;
 
 // Harpocrates round-0 constants, to be added to state matrix during execution
 // of round-0, generated following `Round constant addition` point in
