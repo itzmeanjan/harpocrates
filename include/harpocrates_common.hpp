@@ -3,7 +3,7 @@
 
 // Harpocrates - An Efficient Encryption Mechanism for Data-at-rest, related
 // common functions & constants
-namespace harpocartes_utils {
+namespace harpocartes_common {
 
 // Harpocrates round-0 constants, to be added to state matrix during execution
 // of round-0, generated following `Round constant addition` point in

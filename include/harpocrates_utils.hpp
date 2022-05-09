@@ -1,6 +1,8 @@
 #pragma once
+#include "harpocrates_common.hpp"
 #include <cstdint>
 #include <random>
+#include <type_traits>
 
 using size_t = std::size_t;
 
@@ -54,6 +56,48 @@ generate_inv_lut(const uint8_t* const __restrict lut,
   constexpr size_t n = 256;
   for (size_t i = 0; i < n; i++) {
     inv_lut[lut[i]] = i;
+  }
+}
+
+// Adds round constants into state matrix, to break the round's self-similarity
+//
+// See `Round constant addition` point in section 2.3 of Harpocrates
+// specification https://eprint.iacr.org/2022/519.pdf
+static inline void
+add_rc(uint16_t* const state, const size_t r_idx)
+{
+  if (r_idx == 0) {
+    for (size_t i = 0; i < 8; i++) {
+      state[i] ^= harpocartes_common::RC0[i];
+    }
+  } else if (r_idx == 1) {
+    for (size_t i = 0; i < 8; i++) {
+      state[i] ^= harpocartes_common::RC1[i];
+    }
+  } else if (r_idx == 2) {
+    for (size_t i = 0; i < 8; i++) {
+      state[i] ^= harpocartes_common::RC2[i];
+    }
+  } else if (r_idx == 3) {
+    for (size_t i = 0; i < 8; i++) {
+      state[i] ^= harpocartes_common::RC2[i];
+    }
+  } else if (r_idx == 4) {
+    for (size_t i = 0; i < 8; i++) {
+      state[i] ^= harpocartes_common::RC4[i];
+    }
+  } else if (r_idx == 5) {
+    for (size_t i = 0; i < 8; i++) {
+      state[i] ^= harpocartes_common::RC5[i];
+    }
+  } else if (r_idx == 6) {
+    for (size_t i = 0; i < 8; i++) {
+      state[i] ^= harpocartes_common::RC6[i];
+    }
+  } else if (r_idx == 7) {
+    for (size_t i = 0; i < 8; i++) {
+      state[i] ^= harpocartes_common::RC7[i];
+    }
   }
 }
 
