@@ -64,9 +64,10 @@ encrypt(const uint8_t* const __restrict lut, // look up table
 //
 // where `lut` is the same look up table used during encryption.
 static inline void
-decrypt(const uint8_t* const __restrict inv_lut,
-        const uint8_t* const __restrict enc,
-        uint8_t* const __restrict dec)
+decrypt(const uint8_t* const __restrict inv_lut, // inverse look up table
+        const uint8_t* const __restrict enc,     // input encrypted bytes
+        uint8_t* const __restrict dec            // output decrypted bytes
+)
 {
   uint16_t state[8] = { 0u };
 
