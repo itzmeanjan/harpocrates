@@ -1,6 +1,5 @@
 #pragma once
 #include "harpocrates_common.hpp"
-#include <cstdint>
 #include <random>
 #include <type_traits>
 
@@ -66,7 +65,7 @@ static inline void
 left_to_right_convoluted_substitution(uint16_t* const __restrict state,
                                       const uint8_t* const __restrict lut)
 {
-  for (size_t i = 0; i < harpocartes_common::N_ROWS; i++) {
+  for (size_t i = 0; i < harpocrates_common::N_ROWS; i++) {
     uint16_t tmp = state[i];
 
     // step 1
@@ -115,35 +114,35 @@ add_rc(uint16_t* const state, const size_t r_idx)
 {
   if (r_idx == 0) {
     for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocartes_common::RC0[i];
+      state[i] ^= harpocrates_common::RC0[i];
     }
   } else if (r_idx == 1) {
     for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocartes_common::RC1[i];
+      state[i] ^= harpocrates_common::RC1[i];
     }
   } else if (r_idx == 2) {
     for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocartes_common::RC2[i];
+      state[i] ^= harpocrates_common::RC2[i];
     }
   } else if (r_idx == 3) {
     for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocartes_common::RC2[i];
+      state[i] ^= harpocrates_common::RC2[i];
     }
   } else if (r_idx == 4) {
     for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocartes_common::RC4[i];
+      state[i] ^= harpocrates_common::RC4[i];
     }
   } else if (r_idx == 5) {
     for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocartes_common::RC5[i];
+      state[i] ^= harpocrates_common::RC5[i];
     }
   } else if (r_idx == 6) {
     for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocartes_common::RC6[i];
+      state[i] ^= harpocrates_common::RC6[i];
     }
   } else if (r_idx == 7) {
     for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocartes_common::RC7[i];
+      state[i] ^= harpocrates_common::RC7[i];
     }
   }
 }
@@ -155,7 +154,7 @@ static inline void
 column_substitution(uint16_t* const __restrict state,
                     const uint8_t* const __restrict lut)
 {
-  for (size_t i = 0; i < harpocartes_common::N_COLS; i++) {
+  for (size_t i = 0; i < harpocrates_common::N_COLS; i++) {
     const uint8_t b0 = static_cast<uint8_t>((state[0] >> (15ul - i)) & 0b1u);
     const uint8_t b1 = static_cast<uint8_t>((state[1] >> (15ul - i)) & 0b1u);
     const uint8_t b2 = static_cast<uint8_t>((state[2] >> (15ul - i)) & 0b1u);
@@ -170,21 +169,21 @@ column_substitution(uint16_t* const __restrict state,
 
     const uint8_t col1 = lut[col0];
 
-    state[0] = (state[0] & harpocartes_common::COL_MASKS[i]) |
+    state[0] = (state[0] & harpocrates_common::COL_MASKS[i]) |
                (static_cast<uint16_t>((col1 >> 7) & 0b1u) << (15ul - i));
-    state[1] = (state[1] & harpocartes_common::COL_MASKS[i]) |
+    state[1] = (state[1] & harpocrates_common::COL_MASKS[i]) |
                (static_cast<uint16_t>((col1 >> 6) & 0b1u) << (15ul - i));
-    state[2] = (state[2] & harpocartes_common::COL_MASKS[i]) |
+    state[2] = (state[2] & harpocrates_common::COL_MASKS[i]) |
                (static_cast<uint16_t>((col1 >> 5) & 0b1u) << (15ul - i));
-    state[3] = (state[3] & harpocartes_common::COL_MASKS[i]) |
+    state[3] = (state[3] & harpocrates_common::COL_MASKS[i]) |
                (static_cast<uint16_t>((col1 >> 4) & 0b1u) << (15ul - i));
-    state[4] = (state[4] & harpocartes_common::COL_MASKS[i]) |
+    state[4] = (state[4] & harpocrates_common::COL_MASKS[i]) |
                (static_cast<uint16_t>((col1 >> 3) & 0b1u) << (15ul - i));
-    state[5] = (state[5] & harpocartes_common::COL_MASKS[i]) |
+    state[5] = (state[5] & harpocrates_common::COL_MASKS[i]) |
                (static_cast<uint16_t>((col1 >> 2) & 0b1u) << (15ul - i));
-    state[6] = (state[6] & harpocartes_common::COL_MASKS[i]) |
+    state[6] = (state[6] & harpocrates_common::COL_MASKS[i]) |
                (static_cast<uint16_t>((col1 >> 1) & 0b1u) << (15ul - i));
-    state[7] = (state[7] & harpocartes_common::COL_MASKS[i]) |
+    state[7] = (state[7] & harpocrates_common::COL_MASKS[i]) |
                (static_cast<uint16_t>((col1 >> 0) & 0b1u) << (15ul - i));
   }
 }
@@ -198,7 +197,7 @@ static inline void
 right_to_left_convoluted_substitution(uint16_t* const __restrict state,
                                       const uint8_t* const __restrict lut)
 {
-  for (size_t i = 0; i < harpocartes_common::N_ROWS; i++) {
+  for (size_t i = 0; i < harpocrates_common::N_ROWS; i++) {
     uint16_t tmp = state[i];
 
     // step 1

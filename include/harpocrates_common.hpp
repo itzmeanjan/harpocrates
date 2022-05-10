@@ -5,10 +5,19 @@ using size_t = std::size_t;
 
 // Harpocrates - An Efficient Encryption Mechanism for Data-at-rest, related
 // common functions & constants
-namespace harpocartes_common {
+namespace harpocrates_common {
+
+// 16 -bytes of plain/ cipher text blocks are processed at a time
+// by Harpocrates cipher ( which is why input to encrypt()/ decrypt() routines
+// are expected to have 16 -bytes of plain/ cipher text )
+constexpr size_t BLOCK_LEN = 16ul;
+
+// Harpocrates cipher consists of 8 iterative rounds for processing
+// each message block ( 16 -bytes )
+constexpr size_t N_ROUNDS = 8ul;
 
 // # -of rows in Harpocrates state matrix ( it's a 8 x 16 row-major bit matrix )
-constexpr size_t N_ROWS = 8ul;
+constexpr size_t N_ROWS = BLOCK_LEN >> 1;
 
 // # -of columns in Harpocrates state matrix ( it's a 8 x 16 row-major bit
 // matrix )
