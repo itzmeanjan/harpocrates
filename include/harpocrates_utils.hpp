@@ -136,7 +136,7 @@ add_rc(uint16_t* const state, const size_t r_idx)
     }
   } else if (r_idx == 3) {
     for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocrates_common::RC2[i];
+      state[i] ^= harpocrates_common::RC3[i];
     }
   } else if (r_idx == 4) {
     for (size_t i = 0; i < 8; i++) {
