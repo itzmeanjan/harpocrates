@@ -1,5 +1,6 @@
 #pragma once
 #include "harpocrates_common.hpp"
+#include <bit>
 #include <random>
 #include <type_traits>
 
@@ -122,38 +123,8 @@ left_to_right_convoluted_substitution(uint16_t* const __restrict state,
 static inline void
 add_rc(uint16_t* const state, const size_t r_idx)
 {
-  if (r_idx == 0) {
-    for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocrates_common::RC0[i];
-    }
-  } else if (r_idx == 1) {
-    for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocrates_common::RC1[i];
-    }
-  } else if (r_idx == 2) {
-    for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocrates_common::RC2[i];
-    }
-  } else if (r_idx == 3) {
-    for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocrates_common::RC3[i];
-    }
-  } else if (r_idx == 4) {
-    for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocrates_common::RC4[i];
-    }
-  } else if (r_idx == 5) {
-    for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocrates_common::RC5[i];
-    }
-  } else if (r_idx == 6) {
-    for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocrates_common::RC6[i];
-    }
-  } else if (r_idx == 7) {
-    for (size_t i = 0; i < 8; i++) {
-      state[i] ^= harpocrates_common::RC7[i];
-    }
+  for (size_t i = 0; i < harpocrates_common::N_ROWS; i++) {
+    state[i] ^= std::rotl(harpocrates_common::RC[i], r_idx << 1);
   }
 }
 
