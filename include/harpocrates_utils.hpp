@@ -100,43 +100,48 @@ static inline void
 left_to_right_convoluted_substitution(uint16_t* const __restrict state,
                                       const uint8_t* const __restrict lut)
 {
+#if defined __clang__
+#pragma unroll 8
+#elif defined __GNUG__
+#pragma GCC ivdep
+#pragma GCC unroll 8
+#endif
   for (size_t i = 0; i < harpocrates_common::N_ROWS; i++) {
-    uint16_t tmp = state[i];
+    const uint16_t row = state[i];
+
+    const uint8_t lo = static_cast<uint8_t>(row);
+
+    const uint8_t lo_msb0 = lo >> 6;
+    const uint8_t lo_msb2 = (lo >> 4) & 0b11;
+    const uint8_t lo_msb4 = (lo >> 2) & 0b11;
+    const uint8_t lo_msb6 = lo & 0b11;
 
     // step 1
-    const uint8_t t0 = static_cast<uint8_t>(tmp >> 8);
+    const uint8_t t0 = static_cast<uint8_t>(row >> 8);
     const uint8_t t1 = lut[t0];
-
-    tmp = (static_cast<uint16_t>(t1) << 8) | (tmp & 0b11111111u);
+    const uint8_t msb0 = t1 >> 6;
 
     // step 2
-    const uint8_t t2 = static_cast<uint8_t>(tmp >> 6);
+    const uint8_t t2 = (t1 << 2) | lo_msb0;
     const uint8_t t3 = lut[t2];
-
-    tmp = (tmp & 0b1100000000000000u) | (static_cast<uint16_t>(t3) << 6) |
-          (tmp & 0b111111u);
+    const uint8_t msb2 = t3 >> 6;
 
     // step 3
-    const uint8_t t4 = static_cast<uint8_t>(tmp >> 4);
+    const uint8_t t4 = (t3 << 2) | lo_msb2;
     const uint8_t t5 = lut[t4];
-
-    tmp = (tmp & 0b1111000000000000u) | (static_cast<uint16_t>(t5) << 4) |
-          (tmp & 0b1111u);
+    const uint8_t msb4 = t5 >> 6;
 
     // step 4
-    const uint8_t t6 = static_cast<uint8_t>(tmp >> 2);
+    const uint8_t t6 = (t5 << 2) | lo_msb4;
     const uint8_t t7 = lut[t6];
-
-    tmp = (tmp & 0b1111110000000000u) | (static_cast<uint16_t>(t7) << 2) |
-          (tmp & 0b11u);
+    const uint8_t msb6 = t7 >> 6;
 
     // step 5
-    const uint8_t t8 = static_cast<uint8_t>(tmp);
+    const uint8_t t8 = (t7 << 2) | lo_msb6;
     const uint8_t t9 = lut[t8];
 
-    tmp = (tmp & 0b1111111100000000u) | static_cast<uint16_t>(t9);
-
-    state[i] = tmp;
+    const uint8_t hi = (msb0 << 6) | (msb2 << 4) | (msb4 << 2) | msb6;
+    state[i] = (static_cast<uint16_t>(hi) << 8) | static_cast<uint16_t>(t9);
   }
 }
 
@@ -147,6 +152,12 @@ left_to_right_convoluted_substitution(uint16_t* const __restrict state,
 static inline void
 add_rc(uint16_t* const state, const size_t r_idx)
 {
+#if defined __clang__
+#pragma unroll 8
+#elif defined __GNUG__
+#pragma GCC ivdep
+#pragma GCC unroll 8
+#endif
   for (size_t i = 0; i < harpocrates_common::N_ROWS; i++) {
     state[i] ^= std::rotl(harpocrates_common::RC[i], r_idx << 1);
   }
@@ -202,43 +213,48 @@ static inline void
 right_to_left_convoluted_substitution(uint16_t* const __restrict state,
                                       const uint8_t* const __restrict lut)
 {
+#if defined __clang__
+#pragma unroll 8
+#elif defined __GNUG__
+#pragma GCC ivdep
+#pragma GCC unroll 8
+#endif
   for (size_t i = 0; i < harpocrates_common::N_ROWS; i++) {
-    uint16_t tmp = state[i];
+    const uint16_t row = state[i];
+
+    const uint8_t hi = static_cast<uint8_t>(row >> 8);
+
+    const uint8_t hi_msb6 = hi << 6;
+    const uint8_t hi_msb4 = (hi << 4) & 0b11000000;
+    const uint8_t hi_msb2 = (hi << 2) & 0b11000000;
+    const uint8_t hi_msb0 = hi & 0b11000000;
 
     // step 1
-    const uint8_t t0 = static_cast<uint8_t>(tmp);
+    const uint8_t t0 = static_cast<uint8_t>(row);
     const uint8_t t1 = lut[t0];
-
-    tmp = (tmp & 0b1111111100000000u) | static_cast<uint16_t>(t1);
+    const uint8_t msb6 = t1 & 0b11;
 
     // step 2
-    const uint8_t t2 = static_cast<uint8_t>(tmp >> 2);
+    const uint8_t t2 = hi_msb6 | (t1 >> 2);
     const uint8_t t3 = lut[t2];
-
-    tmp = (tmp & 0b1111110000000000u) | (static_cast<uint16_t>(t3) << 2) |
-          (tmp & 0b11u);
+    const uint8_t msb4 = t3 & 0b11;
 
     // step 3
-    const uint8_t t4 = static_cast<uint8_t>(tmp >> 4);
+    const uint8_t t4 = hi_msb4 | (t3 >> 2);
     const uint8_t t5 = lut[t4];
-
-    tmp = (tmp & 0b1111000000000000u) | (static_cast<uint16_t>(t5) << 4) |
-          (tmp & 0b1111u);
+    const uint8_t msb2 = t5 & 0b11;
 
     // step 4
-    const uint8_t t6 = static_cast<uint8_t>(tmp >> 6);
+    const uint8_t t6 = hi_msb2 | (t5 >> 2);
     const uint8_t t7 = lut[t6];
-
-    tmp = (tmp & 0b1100000000000000u) | (static_cast<uint16_t>(t7) << 6) |
-          (tmp & 0b111111u);
+    const uint8_t msb0 = t7 & 0b11;
 
     // step 5
-    const uint8_t t8 = static_cast<uint8_t>(tmp >> 8);
+    const uint8_t t8 = hi_msb0 | (t7 >> 2);
     const uint8_t t9 = lut[t8];
 
-    tmp = (static_cast<uint16_t>(t9) << 8) | (tmp & 0b11111111u);
-
-    state[i] = tmp;
+    const uint8_t lo = (msb0 << 6) | (msb2 << 4) | (msb4 << 2) | msb6;
+    state[i] = (static_cast<uint16_t>(t9) << 8) | static_cast<uint16_t>(lo);
   }
 }
 
