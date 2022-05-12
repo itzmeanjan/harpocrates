@@ -46,9 +46,21 @@ shuffle(uint8_t* const lut)
 static inline void
 generate_lut(uint8_t* const lut)
 {
-  constexpr size_t n = 256;
+  constexpr size_t n = 64;
+
+#if defined __clang__
+#pragma unroll 4
+#elif defined __GNUG__
+#pragma GCC ivdep
+#pragma GCC unroll 4
+#endif
   for (size_t i = 0; i < n; i++) {
-    lut[i] = i;
+    const size_t off = i << 2;
+
+    lut[off] = off;
+    lut[off ^ 1] = off ^ 1;
+    lut[off ^ 2] = off ^ 2;
+    lut[off ^ 3] = off ^ 3;
   }
 
   shuffle(lut);
@@ -61,9 +73,21 @@ static inline void
 generate_inv_lut(const uint8_t* const __restrict lut,
                  uint8_t* const __restrict inv_lut)
 {
-  constexpr size_t n = 256;
+  constexpr size_t n = 64;
+
+#if defined __clang__
+#pragma unroll 4
+#elif defined __GNUG__
+#pragma GCC ivdep
+#pragma GCC unroll 4
+#endif
   for (size_t i = 0; i < n; i++) {
-    inv_lut[lut[i]] = i;
+    const size_t off = i << 2;
+
+    inv_lut[lut[off]] = off;
+    inv_lut[lut[off ^ 1]] = off ^ 1;
+    inv_lut[lut[off ^ 2]] = off ^ 2;
+    inv_lut[lut[off ^ 3]] = off ^ 3;
   }
 }
 
