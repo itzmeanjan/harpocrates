@@ -119,28 +119,28 @@ left_to_right_convoluted_substitution(uint16_t* const __restrict state,
     // step 1
     const uint8_t t0 = static_cast<uint8_t>(row >> 8);
     const uint8_t t1 = lut[t0];
-    const uint8_t msb0 = t1 >> 6;
+    const uint8_t msb0 = t1 & 0b11000000;
 
     // step 2
     const uint8_t t2 = (t1 << 2) | lo_msb0;
     const uint8_t t3 = lut[t2];
-    const uint8_t msb2 = t3 >> 6;
+    const uint8_t msb2 = (t3 & 0b11000000) >> 2;
 
     // step 3
     const uint8_t t4 = (t3 << 2) | lo_msb2;
     const uint8_t t5 = lut[t4];
-    const uint8_t msb4 = t5 >> 6;
+    const uint8_t msb4 = (t5 & 0b11000000) >> 4;
 
     // step 4
     const uint8_t t6 = (t5 << 2) | lo_msb4;
     const uint8_t t7 = lut[t6];
-    const uint8_t msb6 = t7 >> 6;
+    const uint8_t msb6 = (t7 & 0b11000000) >> 6;
 
     // step 5
     const uint8_t t8 = (t7 << 2) | lo_msb6;
     const uint8_t t9 = lut[t8];
 
-    const uint8_t hi = (msb0 << 6) | (msb2 << 4) | (msb4 << 2) | msb6;
+    const uint8_t hi = msb0 | msb2 | msb4 | msb6;
     state[i] = (static_cast<uint16_t>(hi) << 8) | static_cast<uint16_t>(t9);
   }
 }
@@ -479,23 +479,23 @@ right_to_left_convoluted_substitution(uint16_t* const __restrict state,
     // step 2
     const uint8_t t2 = hi_msb6 | (t1 >> 2);
     const uint8_t t3 = lut[t2];
-    const uint8_t msb4 = t3 & 0b11;
+    const uint8_t msb4 = (t3 & 0b11) << 2;
 
     // step 3
     const uint8_t t4 = hi_msb4 | (t3 >> 2);
     const uint8_t t5 = lut[t4];
-    const uint8_t msb2 = t5 & 0b11;
+    const uint8_t msb2 = (t5 & 0b11) << 4;
 
     // step 4
     const uint8_t t6 = hi_msb2 | (t5 >> 2);
     const uint8_t t7 = lut[t6];
-    const uint8_t msb0 = t7 & 0b11;
+    const uint8_t msb0 = (t7 & 0b11) << 6;
 
     // step 5
     const uint8_t t8 = hi_msb0 | (t7 >> 2);
     const uint8_t t9 = lut[t8];
 
-    const uint8_t lo = (msb0 << 6) | (msb2 << 4) | (msb4 << 2) | msb6;
+    const uint8_t lo = msb0 | msb2 | msb4 | msb6;
     state[i] = (static_cast<uint16_t>(t9) << 8) | static_cast<uint16_t>(lo);
   }
 }
