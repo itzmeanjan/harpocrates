@@ -23,12 +23,22 @@ encrypt(const uint8_t* const __restrict lut, // look up table
 {
   uint16_t state[8] = { 0u };
 
-  for (size_t i = 0; i < harpocrates_common::N_ROWS; i++) {
-    const size_t b_off = i << 1;
-    const uint16_t row = (static_cast<uint16_t>(txt[b_off]) << 8) |
-                         static_cast<uint16_t>(txt[b_off ^ 1]);
+  constexpr size_t itr_cnt = harpocrates_common::N_ROWS >> 1;
 
-    state[i] = row;
+#if defined __clang__
+#pragma unroll 4
+#elif defined __GNUG__
+#pragma GCC ivdep
+#pragma GCC unroll 4
+#endif
+  for (size_t i = 0; i < itr_cnt; i++) {
+    const size_t b_off = i << 2;
+    const size_t r_off = i << 1;
+
+    state[r_off ^ 0] = (static_cast<uint16_t>(txt[b_off ^ 0]) << 8) |
+                       static_cast<uint16_t>(txt[b_off ^ 1]);
+    state[r_off ^ 1] = (static_cast<uint16_t>(txt[b_off ^ 2]) << 8) |
+                       static_cast<uint16_t>(txt[b_off ^ 3]);
   }
 
   for (size_t i = 0; i < harpocrates_common::N_ROUNDS; i++) {
@@ -38,11 +48,20 @@ encrypt(const uint8_t* const __restrict lut, // look up table
     harpocrates_utils::right_to_left_convoluted_substitution(state, lut);
   }
 
-  for (size_t i = 0; i < harpocrates_common::N_ROWS; i++) {
-    const size_t b_off = i << 1;
+#if defined __clang__
+#pragma unroll 4
+#elif defined __GNUG__
+#pragma GCC ivdep
+#pragma GCC unroll 4
+#endif
+  for (size_t i = 0; i < itr_cnt; i++) {
+    const size_t b_off = i << 2;
+    const size_t r_off = i << 1;
 
-    enc[b_off] = static_cast<uint8_t>(state[i] >> 8);
-    enc[b_off ^ 1] = static_cast<uint8_t>(state[i]);
+    enc[b_off ^ 0] = static_cast<uint8_t>(state[r_off ^ 0] >> 8);
+    enc[b_off ^ 1] = static_cast<uint8_t>(state[r_off ^ 0]);
+    enc[b_off ^ 2] = static_cast<uint8_t>(state[r_off ^ 1] >> 8);
+    enc[b_off ^ 3] = static_cast<uint8_t>(state[r_off ^ 1]);
   }
 }
 
@@ -71,12 +90,22 @@ decrypt(const uint8_t* const __restrict inv_lut, // inverse look up table
 {
   uint16_t state[8] = { 0u };
 
-  for (size_t i = 0; i < harpocrates_common::N_ROWS; i++) {
-    const size_t b_off = i << 1;
-    const uint16_t row = (static_cast<uint16_t>(enc[b_off]) << 8) |
-                         static_cast<uint16_t>(enc[b_off ^ 1]);
+  constexpr size_t itr_cnt = harpocrates_common::N_ROWS >> 1;
 
-    state[i] = row;
+#if defined __clang__
+#pragma unroll 4
+#elif defined __GNUG__
+#pragma GCC ivdep
+#pragma GCC unroll 4
+#endif
+  for (size_t i = 0; i < itr_cnt; i++) {
+    const size_t b_off = i << 2;
+    const size_t r_off = i << 1;
+
+    state[r_off ^ 0] = (static_cast<uint16_t>(enc[b_off ^ 0]) << 8) |
+                       static_cast<uint16_t>(enc[b_off ^ 1]);
+    state[r_off ^ 1] = (static_cast<uint16_t>(enc[b_off ^ 2]) << 8) |
+                       static_cast<uint16_t>(enc[b_off ^ 3]);
   }
 
   for (size_t i = 0; i < harpocrates_common::N_ROUNDS; i++) {
@@ -88,11 +117,20 @@ decrypt(const uint8_t* const __restrict inv_lut, // inverse look up table
     right_to_left_convoluted_substitution(state, inv_lut);
   }
 
-  for (size_t i = 0; i < harpocrates_common::N_ROWS; i++) {
-    const size_t b_off = i << 1;
+#if defined __clang__
+#pragma unroll 4
+#elif defined __GNUG__
+#pragma GCC ivdep
+#pragma GCC unroll 4
+#endif
+  for (size_t i = 0; i < itr_cnt; i++) {
+    const size_t b_off = i << 2;
+    const size_t r_off = i << 1;
 
-    dec[b_off] = static_cast<uint8_t>(state[i] >> 8);
-    dec[b_off ^ 1] = static_cast<uint8_t>(state[i]);
+    dec[b_off ^ 0] = static_cast<uint8_t>(state[r_off ^ 0] >> 8);
+    dec[b_off ^ 1] = static_cast<uint8_t>(state[r_off ^ 0]);
+    dec[b_off ^ 2] = static_cast<uint8_t>(state[r_off ^ 1] >> 8);
+    dec[b_off ^ 3] = static_cast<uint8_t>(state[r_off ^ 1]);
   }
 }
 

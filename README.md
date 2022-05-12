@@ -56,15 +56,15 @@ make benchmark
 ### ARM Cortex-A72
 
 ```bash
-022-05-11T16:31:36+05:30
+2022-05-12T20:24:55+05:30
 Running ./bench/a.out
 Run on (4 X 1800 MHz CPU s)
-Load Average: 0.74, 1.20, 1.45
+Load Average: 3.25, 0.98, 0.57
 ------------------------------------------------------------------------------
 Benchmark                    Time             CPU   Iterations UserCounters...
 ------------------------------------------------------------------------------
-harpocrates_encrypt       3443 ns         3443 ns       203330 bytes_per_second=4.43226M/s
-harpocrates_decrypt       3461 ns         3461 ns       202333 bytes_per_second=4.40924M/s
+harpocrates_encrypt       2349 ns         2349 ns       296555 bytes_per_second=6.49583M/s
+harpocrates_decrypt       2317 ns         2317 ns       302110 bytes_per_second=6.58582M/s
 ```
 
 ## Usage
