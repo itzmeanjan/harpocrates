@@ -1,3 +1,4 @@
+#pragma once
 #include "harpocrates.hpp"
 #include "utils.hpp"
 #include <benchmark/benchmark.h>
@@ -91,10 +92,3 @@ harpocrates_decrypt(benchmark::State& state)
   std::free(enc);
   std::free(dec);
 }
-
-// register function for benchmarking
-BENCHMARK(harpocrates_encrypt);
-BENCHMARK(harpocrates_decrypt);
-
-// main function to make it executable
-BENCHMARK_MAIN();
