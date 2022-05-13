@@ -12,11 +12,11 @@ test_harpocrates_parallel(sycl::queue& q,
   const size_t ct_len = wi_cnt << 4;
 
   // allocate resources
-  uint8_t* lut = static_cast<uint8_t*>(sycl::malloc_device(256, q));
-  uint8_t* ilut = static_cast<uint8_t*>(sycl::malloc_device(256, q));
-  uint8_t* txt = static_cast<uint8_t*>(sycl::malloc_device(ct_len, q));
-  uint8_t* enc = static_cast<uint8_t*>(sycl::malloc_device(ct_len, q));
-  uint8_t* dec = static_cast<uint8_t*>(sycl::malloc_device(ct_len, q));
+  uint8_t* lut = static_cast<uint8_t*>(sycl::malloc_shared(256, q));
+  uint8_t* ilut = static_cast<uint8_t*>(sycl::malloc_shared(256, q));
+  uint8_t* txt = static_cast<uint8_t*>(sycl::malloc_shared(ct_len, q));
+  uint8_t* enc = static_cast<uint8_t*>(sycl::malloc_shared(ct_len, q));
+  uint8_t* dec = static_cast<uint8_t*>(sycl::malloc_shared(ct_len, q));
 
   // creation of (inverse) look up table is one time !
   //
