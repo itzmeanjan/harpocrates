@@ -29,10 +29,13 @@ main()
 
 #if defined TARGET_CPU
   sycl::cpu_selector s{};
+#pragma message("Targeting default CPU at run-time")
 #elif defined TARGET_GPU
   sycl::gpu_selector s{};
+#pragma message("Targeting default GPU at run-time")
 #else
   sycl::default_selector s{};
+#pragma message("Targeting default Accelerator at run-time")
 #endif
 
   sycl::device d{ s };
