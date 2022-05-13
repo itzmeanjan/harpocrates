@@ -4,7 +4,7 @@
 #include <cassert>
 
 // Tests functional correctness of Harpocrates cipher implementation
-static inline void
+static void
 test_harpocrates()
 {
   constexpr size_t ct_len = harpocrates_common::BLOCK_LEN;

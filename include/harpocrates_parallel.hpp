@@ -14,7 +14,7 @@ class kernelHarpocratesEncrypt;
 class kernelHarpocratesDecrypt;
 
 sycl::event
-encrypt(sycl::queue,
+encrypt(sycl::queue&,
         const uint8_t* const __restrict,
         const uint8_t* const __restrict,
         uint8_t* const __restrict,
@@ -23,7 +23,7 @@ encrypt(sycl::queue,
         std::vector<sycl::event>);
 
 sycl::event
-decrypt(sycl::queue,
+decrypt(sycl::queue&,
         const uint8_t* const __restrict,
         const uint8_t* const __restrict,
         uint8_t* const __restrict,
@@ -44,7 +44,7 @@ decrypt(sycl::queue,
 // For creating SYCL dependency graph, make use of last parameter & return type
 // of this routine.
 sycl::event
-encrypt(sycl::queue q,                       // SYCL queue
+encrypt(sycl::queue& q,                      // SYCL queue
         const uint8_t* const __restrict lut, // 256 -bytes look up table
         const uint8_t* const __restrict txt, // plain text | len(txt) = N
         uint8_t* const __restrict enc,       // encrypted text | len(enc) = N
@@ -94,7 +94,7 @@ encrypt(sycl::queue q,                       // SYCL queue
 // of this routine.
 sycl::event
 decrypt(
-  sycl::queue q,                           // SYCL queue
+  sycl::queue& q,                          // SYCL queue
   const uint8_t* const __restrict inv_lut, // 256 -bytes inverse look up table
   const uint8_t* const __restrict enc,     // encrypted bytes | len(enc) = N
   uint8_t* const __restrict dec,           // decrypted bytes | len(dec) = N
