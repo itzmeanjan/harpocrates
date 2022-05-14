@@ -1,4 +1,9 @@
 #pragma once
+
+#if !defined HARPOCRATES_PARALLEL
+#define HARPOCRATES_PARALLEL
+#endif
+
 #include "harpocrates.hpp"
 #include <CL/sycl.hpp>
 #include <cassert>
@@ -70,12 +75,28 @@ encrypt(sycl::queue& q,                      // SYCL queue
     // create dependency graph
     h.depends_on(evts);
 
+    sycl::accessor<uint8_t,
+                   1,
+                   sycl::access_mode::read_write,
+                   sycl::access::target::local>
+      loc_lut{ sycl::range<1>{ 256ul }, h };
+
     const auto rng = sycl::nd_range<1>{ wi_cnt, wg_size };
     h.parallel_for<kernelHarpocratesEncrypt>(rng, [=](sycl::nd_item<1> it) {
+      const auto grp = it.get_group();
+
+      if (it.get_local_linear_id() == 0ul) {
+        for (size_t i = 0; i < 256ul; i++) {
+          loc_lut[i] = lut[i];
+        }
+      }
+
+      sycl::group_barrier(grp, sycl::memory_scope_work_group);
+
       const size_t idx = it.get_global_linear_id();
       const size_t b_off = idx << 4;
 
-      harpocrates::encrypt(lut, txt + b_off, enc + b_off);
+      harpocrates::encrypt(loc_lut.get_pointer(), txt + b_off, enc + b_off);
     });
   });
 }
@@ -120,12 +141,28 @@ decrypt(
     // create dependency graph
     h.depends_on(evts);
 
+    sycl::accessor<uint8_t,
+                   1,
+                   sycl::access_mode::read_write,
+                   sycl::access::target::local>
+      loc_inv_lut{ sycl::range<1>{ 256ul }, h };
+
     const auto rng = sycl::nd_range<1>{ wi_cnt, wg_size };
     h.parallel_for<kernelHarpocratesDecrypt>(rng, [=](sycl::nd_item<1> it) {
+      const auto grp = it.get_group();
+
+      if (it.get_local_linear_id() == 0ul) {
+        for (size_t i = 0; i < 256ul; i++) {
+          loc_inv_lut[i] = inv_lut[i];
+        }
+      }
+
+      sycl::group_barrier(grp, sycl::memory_scope_work_group);
+
       const size_t idx = it.get_global_linear_id();
       const size_t b_off = idx << 4;
 
-      harpocrates::decrypt(inv_lut, enc + b_off, dec + b_off);
+      harpocrates::decrypt(loc_inv_lut.get_pointer(), enc + b_off, dec + b_off);
     });
   });
 }
