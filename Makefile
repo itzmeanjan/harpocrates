@@ -22,6 +22,12 @@ format:
 lib:
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) $(IFLAGS) -fPIC --shared wrapper/harpocrates.cpp -o wrapper/libharpocrates.so
 
+test_rust:
+	make lib && cd wrapper/rust && LD_LIBRARY_PATH=.. cargo test --lib && cd ../..
+
+bench_rust:
+	make lib && cd wrapper/rust && LD_LIBRARY_PATH=.. cargo criterion --output-format verbose && cd ../..
+
 # benchmarks Harpocrates minimal cipher variant on CPU
 bench/harpocrates.out: bench/harpocrates.cpp include/*.hpp
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) $(IFLAGS) $< -lbenchmark -o $@
