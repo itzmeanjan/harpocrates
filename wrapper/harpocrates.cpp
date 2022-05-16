@@ -7,6 +7,11 @@
 // Function declarations
 extern "C"
 {
+  void generate_lut(uint8_t* const);
+
+  void generate_ilut(const uint8_t* const __restrict,
+                     uint8_t* const __restrict);
+
   void encrypt(const uint8_t* const __restrict,
                const uint8_t* const __restrict,
                uint8_t* const __restrict);
@@ -19,6 +24,28 @@ extern "C"
 // Function implementations
 extern "C"
 {
+  // Generates Harpocrates look up table which is used during encryption.
+  // Inverse look up table is also computed from it, which is used during
+  // decryption.
+  //
+  // This function is used only during setup phase. Size of look up table is 256
+  // -bytes.
+  void generate_lut(uint8_t* const lut)
+  {
+    harpocrates_utils::generate_lut(lut);
+  }
+
+  // Computes Harpocrates inverse look up table from already generated look up
+  // table.
+  //
+  // This function is used only during setup phase. Size of (inverse) look up
+  // table is 256 -bytes.
+  void generate_ilut(const uint8_t* const __restrict lut,
+                     uint8_t* const __restrict ilut)
+  {
+    harpocrates_utils::generate_inv_lut(lut, ilut);
+  }
+
   // Given 256 -bytes look up table, 16 -bytes plain text, this routine computes
   // 16 -bytes encrypted data using Harpocrates encryption algorithm
   //
