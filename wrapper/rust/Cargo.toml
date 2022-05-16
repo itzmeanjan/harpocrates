@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 static_assertions = "1.1.0"
+rayon = "1.5.3"
 
 [dev-dependencies]
 rand = "0.8.4"

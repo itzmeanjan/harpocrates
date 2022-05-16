@@ -96,6 +96,52 @@ pub fn decrypt_data(ilut: &[u8], enc: &[u8], dec: &mut [u8]) {
     }
 }
 
+/// Given 256 -bytes look up table & N -bytes plain text such that N is evenly
+/// divisible by 16 ( so that each 16 -bytes slice can independently be encrypted
+/// by calling `encrypt` routine ), this function computes N -bytes encrypted data
+/// by parallelly invoking `encrypt` routine ( see above ) (N >> 4) -many times
+///
+/// Ensure that `len(lut) == 256 && len(txt) == len(enc) == N && N & 15 == 0`
+pub fn par_encrypt_data(lut: &[u8], txt: &[u8], enc: &mut [u8]) {
+    use rayon::prelude::*;
+
+    let ct_len = txt.len();
+
+    assert_eq!(lut.len(), 256);
+    assert_eq!(ct_len, enc.len());
+    assert_eq!(ct_len & 15, 0);
+
+    txt.par_chunks_exact(16)
+        .zip(enc.par_chunks_exact_mut(16))
+        .into_par_iter()
+        .for_each(|(src, dst)| {
+            encrypt(lut, src, dst);
+        });
+}
+
+/// Given 256 -bytes inverse look up table & N -bytes cipher text such that N is evenly
+/// divisible by 16 ( so that each 16 -bytes slice can independently be decrypted
+/// by calling `decrypt` routine ), this function computes N -bytes decrypted data
+/// by parallelly invoking `decrypt` routine ( see above ) (N >> 4) -many times
+///
+/// Ensure that `len(ilut) == 256 && len(enc) == len(dec) == N && N & 15 == 0`
+pub fn par_decrypt_data(ilut: &[u8], enc: &[u8], dec: &mut [u8]) {
+    use rayon::prelude::*;
+
+    let ct_len = enc.len();
+
+    assert_eq!(ilut.len(), 256);
+    assert_eq!(ct_len, dec.len());
+    assert_eq!(ct_len & 15, 0);
+
+    enc.par_chunks_exact(16)
+        .zip(dec.par_chunks_exact_mut(16))
+        .into_par_iter()
+        .for_each(|(src, dst)| {
+            decrypt(ilut, src, dst);
+        });
+}
+
 mod test {
     #[test]
     fn harpocrates_cipher() {
@@ -171,5 +217,51 @@ mod test {
         for i in 0..CT_LEN {
             assert_eq!(txt[i], dec[i]);
         }
+    }
+
+    #[test]
+    fn par_harpocrates_cipher_with_large_data_block() {
+        use crate::harpocrates::*;
+        use rand::prelude::*;
+        use rayon::prelude::*;
+        use static_assertions::const_assert;
+        use std::sync::atomic::{AtomicBool, Ordering};
+
+        const CT_LEN: usize = 1 << 20;
+        const_assert!(CT_LEN & 15 == 0);
+
+        let mut lut = Vec::<u8>::with_capacity(256);
+        let mut ilut = Vec::<u8>::with_capacity(256);
+        let mut txt = Vec::<u8>::with_capacity(CT_LEN);
+        let mut enc = Vec::<u8>::with_capacity(CT_LEN);
+        let mut dec = Vec::<u8>::with_capacity(CT_LEN);
+
+        unsafe {
+            lut.set_len(256);
+            ilut.set_len(256);
+            txt.set_len(CT_LEN);
+            enc.set_len(CT_LEN);
+            dec.set_len(CT_LEN);
+        }
+
+        generate_lut(&mut lut);
+        generate_ilut(&lut, &mut ilut);
+
+        let mut rng = thread_rng();
+
+        rng.fill_bytes(&mut txt);
+        enc.fill(0u8);
+        dec.fill(0u8);
+
+        par_encrypt_data(&lut, &txt, &mut enc);
+        par_decrypt_data(&ilut, &enc, &mut dec);
+
+        let flag = AtomicBool::new(false);
+
+        (0..CT_LEN).into_par_iter().for_each(|i| {
+            flag.fetch_or((txt[i] ^ dec[i]) != 0, Ordering::Relaxed);
+        });
+
+        assert_eq!(flag.load(Ordering::SeqCst), false);
     }
 }
