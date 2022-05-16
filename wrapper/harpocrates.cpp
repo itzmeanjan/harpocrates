@@ -7,18 +7,18 @@
 // Function declarations
 extern "C"
 {
-  void generate_lut(uint8_t* const);
+  void generate_harpocrates_lut(uint8_t* const);
 
-  void generate_ilut(const uint8_t* const __restrict,
-                     uint8_t* const __restrict);
+  void generate_harpocrates_ilut(const uint8_t* const __restrict,
+                                 uint8_t* const __restrict);
 
-  void encrypt(const uint8_t* const __restrict,
-               const uint8_t* const __restrict,
-               uint8_t* const __restrict);
+  void harpocrates_encrypt(const uint8_t* const __restrict,
+                           const uint8_t* const __restrict,
+                           uint8_t* const __restrict);
 
-  void decrypt(const uint8_t* const __restrict,
-               const uint8_t* const __restrict,
-               uint8_t* const __restrict);
+  void harpocrates_decrypt(const uint8_t* const __restrict,
+                           const uint8_t* const __restrict,
+                           uint8_t* const __restrict);
 }
 
 // Function implementations
@@ -30,7 +30,7 @@ extern "C"
   //
   // This function is used only during setup phase. Size of look up table is 256
   // -bytes.
-  void generate_lut(uint8_t* const lut)
+  void generate_harpocrates_lut(uint8_t* const lut)
   {
     harpocrates_utils::generate_lut(lut);
   }
@@ -40,8 +40,8 @@ extern "C"
   //
   // This function is used only during setup phase. Size of (inverse) look up
   // table is 256 -bytes.
-  void generate_ilut(const uint8_t* const __restrict lut,
-                     uint8_t* const __restrict ilut)
+  void generate_harpocrates_ilut(const uint8_t* const __restrict lut,
+                                 uint8_t* const __restrict ilut)
   {
     harpocrates_utils::generate_inv_lut(lut, ilut);
   }
@@ -57,9 +57,9 @@ extern "C"
   // Output:
   //
   // - enc: 16 -bytes of encrypted data i.e. len(enc) == 16
-  void encrypt(const uint8_t* const __restrict lut,
-               const uint8_t* const __restrict txt,
-               uint8_t* const __restrict enc)
+  void harpocrates_encrypt(const uint8_t* const __restrict lut,
+                           const uint8_t* const __restrict txt,
+                           uint8_t* const __restrict enc)
   {
 
     harpocrates::encrypt(lut, txt, enc);
@@ -77,9 +77,9 @@ extern "C"
   // Output:
   //
   // - dec: 16 -bytes of decrypted data i.e. len(dec) == 16
-  void decrypt(const uint8_t* const __restrict ilut,
-               const uint8_t* const __restrict enc,
-               uint8_t* const __restrict dec)
+  void harpocrates_decrypt(const uint8_t* const __restrict ilut,
+                           const uint8_t* const __restrict enc,
+                           uint8_t* const __restrict dec)
   {
     harpocrates::decrypt(ilut, enc, dec);
   }
