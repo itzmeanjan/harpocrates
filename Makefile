@@ -19,6 +19,9 @@ clean:
 format:
 	find . -name '*.cpp' -o -name '*.hpp' | xargs clang-format -i --style=Mozilla
 
+lib:
+	$(CXX) $(CXXFLAGS) $(OPTFLAGS) $(IFLAGS) -fPIC --shared wrapper/harpocrates.cpp -o wrapper/libharpocrates.so
+
 # benchmarks Harpocrates minimal cipher variant on CPU
 bench/harpocrates.out: bench/harpocrates.cpp include/*.hpp
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) $(IFLAGS) $< -lbenchmark -o $@
