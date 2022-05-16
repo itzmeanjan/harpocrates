@@ -1,0 +1,16 @@
+[package]
+name = "harpocrates"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+static_assertions = "1.1.0"
+rayon = "1.5.3"
+
+[dev-dependencies]
+rand = "0.8.4"
+criterion = "0.3.5"
+
+[[bench]]
+name = "harpocrates"
+harness = false
